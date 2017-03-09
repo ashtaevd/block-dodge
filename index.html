@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+
+		<title>Block Dodge</title>
+		<!-- <meta charset="utf-8"> -->
+		<!-- <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"> -->
+
+		<script src="https://aframe.io/releases/0.5.0/aframe.js"></script>
+		<script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
+
+		<script>
+
+			var levelOneBlocks = [];
+			var levelOneNumber = 20;
+
+			for (var i = 1; i<levelOneNumber + 1; i++) {
+
+				levelOneBlocks.push("levelOneBlock" + i)
+
+			}
+
+			console.log(levelOneBlocks)
+
+			//***How to limit camera position?***
+			// if ( camera.position.x <=-10 || camera.position.x >=10 || camera.position.z <=-10 || camera.position.z >=10 )
+
+			// maximum radius distance
+			// function randomPos(radius){
+			// 	var xP = Math.floor(Math.random()*radius-radius/2);
+			// 	var yP = Math.floor(Math.random()*radius-radius/2);
+			// 	var zP = Math.floor(Math.random()*radius-radius/2);
+			// 	//console.log(xP + " " + yP + " " + zP);
+			// 	return { "x":xP, "y":yP, "z":zP };
+			// }
+
+			// function changeVisibility(obj, camera){
+		 //        var objPos = obj.getAttribute("position");
+		 //        var camPos = camera.getAttribute("position");
+		 //    }
+
+		//  function changeVisibility(obj, camera){
+
+	 //        var objPos = obj.getAttribute("position");
+	 //        var camPos = camera.getAttribute("position");
+
+	 //        if( calculateDistance(objPos, camPos) > 15) {
+		// 		//fade away box when farther than 10
+		// 		//obj.setAttribute('material','opacity', '0.0');
+		// 		if( obj.is("visible") || obj.is("appearing") ){
+		// 		obj.emit("fadeOut");
+		// 		}
+	 //        }
+
+	 //        else {
+		// 		//obj.setAttribute('material','opacity', '1.0');
+		// 		if( obj.is("invisible") || obj.is("disappearing") ){
+		// 		obj.emit("fadeIn");
+		// 		}
+	 //        }
+	        
+		// }
+
+		</script>
+
+	</head>
+
+	<body>
+
+		<!-- <script src="js/jquery-3.1.1.min.js"></script>
+		<script src="js/three.js"></script> -->
+
+		<a-scene>
+
+			<!-- <a-assets>
+
+				<img id="ground" src="ground.jpg">
+
+			</a-assets> -->
+
+			<!-- Basic plane. -->
+			<a-plane color="#ff0000" height="20" width="20" rotation="-90 0 0"></a-plane>
+			<a-plane color="#ffffff" height="19" width="19" rotation="-90 0 0" position="0 .01 0"></a-plane>
+
+			<a-entity meshline="lineWidth: .2; path: 10 0 100, 10 0 -100; color: #00ffff"></a-entity>
+
+			<a-box color="#00ffff" depth="2" height="1" width="1" position="4.5 .5 -9.5"></a-box>
+
+			<!-- Textured plane parallel to ground. -->
+			<!-- <a-plane src="#ground" height="100" width="100" rotation="-90 0 0"></a-plane> -->
+		
+			<!-- <a-entity position = "0 0 40">
+				<a-camera></a-camera>
+			</a-entity>
+ -->
+		</a-scene>
+		
+
+	</body>
+</html>
