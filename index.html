@@ -8,58 +8,175 @@
 
 		<script src="https://aframe.io/releases/0.5.0/aframe.js"></script>
 		<script src="https://rawgit.com/andreasplesch/aframe-meshline-component/master/dist/aframe-meshline-component.min.js"></script>
+		<script src="https://code.jquery.com/jquery-latest.min.js"></script>
 
 		<script>
+
+		 	
 
 			var levelOneBlocks = [];
 			var levelOneNumber = 20;
 
-			for (var i = 1; i<levelOneNumber + 1; i++) {
+			// for (var i = 1; i<levelOneNumber + 1; i++) {
 
-				levelOneBlocks.push("levelOneBlock" + i)
+			// 	levelOneBlocks.push("levelOneBlock" + i)
+
+			// }
+
+			//creates animation element to be appended to Shape
+			function createAnimation(event){
+
+				var anim = document.createElement("a-animation");
+				anim.setAttribute("begin", event);
+				return anim;
 
 			}
 
-			console.log(levelOneBlocks)
+		 	//returns distance between two objects
+			function calculateDistance(one, two){
+
+				return Math.sqrt(
+					+ Math.pow(one.x-two.x, 2)
+					+ Math.pow(one.y-two.y, 2)
+					+ Math.pow(one.z-two.z, 2) );
+
+			}
+
+		    function touchLocator(obj, camera){
+		        var objPos = obj.getAttribute("position");
+		        var camPos = camera.getAttribute("position");
+		        if( calculateDistance(objPos, camPos) <= 1.5) {
+		        	console.log("Near bloccck.");
+		        }
+		    }
+
+		  // 	AFRAME.registerComponent('floor-lines', {
+
+				// schema: {
+
+				// 	lineWidth: {type:'number', default: .2},
+				// 	color: {type:'color', default: '#00FFFF'},
+
+				// },
+
+				// init: function (meshline) {
+
+				// 	// var entity = document.createElement('a-entity');
+				// 	// entity.setAttribute('meshline', true);
+
+				// 	var self = this;
+
+		  //     		var entity = document.createElement('a-entity');
+    //       			entity.setAttribute('meshline', true);
+
+    //       			self.el.appendChild(entity);
+
+			 //  		for (var i = -10; i <= 10; i++) {}
+
+		  // 		}
+		  		
+		  // 	});
+
+
+		    // ~ ~ ~ block style and behavior ~ ~ ~
+		    AFRAME.registerComponent('flying-block', {
+
+				schema: {
+
+				},
+
+				init: function () {
+					
+          			this.el.setAttribute("geometry", { "primitive": "box" });
+         			this.el.setAttribute("material", "color", "#00ffff");
+         			this.el.setAttribute("geometry", {"depth": 2, "height": 1, "width": 1} );
+
+         			var position = this.el.getAttribute('position');
+         			randomPosition = Math.floor((Math.random() * 20) - 10);
+         			this.el.setAttribute('position', { x: randomPosition, y: .5, z: -30 });
+
+         			// console.log(this)
+					
+				},
+
+				update: function () {
+
+				},
+
+				tick: function (time, timeDelta) {
+
+					var position = this.el.getAttribute('position');
+					var rotation = this.el.getAttribute('rotation');
+					
+					// this.el.setAttribute('rotation', { x: rotation.x + (.01 * timeDelta), y: rotation.y, z: rotation.z });
+
+					this.el.setAttribute('position', { x: position.x , y: position.y, z: position.z + (.006 * timeDelta) });
+
+					if (position.z > 30) {
+						this.el.parentNode.removeChild(this.el);
+					}
+
+					levelOneBlocks.push(this.el)
+
+				}
+
+			});	
+
+		    // ~ ~ ~ the originpoint of shooting blocks ~ ~ ~
+		    var timeDifference = 800
+		    AFRAME.registerComponent('block-creator', {
+
+				schema: {
+
+					// set origin position either here or html
+
+				},
+
+				init: function () {
+					
+					var self = this;
+          			setInterval(function() {
+
+          				var entity = document.createElement('a-entity');
+          				entity.setAttribute('flying-block', true);
+
+          				self.el.appendChild(entity)
+          				//create new flying block
+
+          			}, timeDifference)
+					
+				},
+
+				update: function () {
+
+					
+				},
+
+				tick: function (time, timeDelta) {
+
+					timeDifference -= .1;
+
+				}
+
+			});	
+
+		    // ~ ~ ~ mb have the objective as running from one side of the square to the other ~ ~ ~
+
+		    // ~ ~ ~ Limiting the player ~ ~ ~
+
+		    // if (self.el.position.x >= 10 || self.el.position.x <= -10 || 
+		    // 	self.el.position.z >= 10 || self.el.position.z <= -10) {
+
+		    // 	// canvas background turns red, lose health bar, camera shakes
+
+		    	// else {
+		    	// sky white all normal
+		    	// }
+
+		    // };
 
 			//***How to limit camera position?***
 			// if ( camera.position.x <=-10 || camera.position.x >=10 || camera.position.z <=-10 || camera.position.z >=10 )
-
-			// maximum radius distance
-			// function randomPos(radius){
-			// 	var xP = Math.floor(Math.random()*radius-radius/2);
-			// 	var yP = Math.floor(Math.random()*radius-radius/2);
-			// 	var zP = Math.floor(Math.random()*radius-radius/2);
-			// 	//console.log(xP + " " + yP + " " + zP);
-			// 	return { "x":xP, "y":yP, "z":zP };
-			// }
-
-			// function changeVisibility(obj, camera){
-		 //        var objPos = obj.getAttribute("position");
-		 //        var camPos = camera.getAttribute("position");
-		 //    }
-
-		//  function changeVisibility(obj, camera){
-
-	 //        var objPos = obj.getAttribute("position");
-	 //        var camPos = camera.getAttribute("position");
-
-	 //        if( calculateDistance(objPos, camPos) > 15) {
-		// 		//fade away box when farther than 10
-		// 		//obj.setAttribute('material','opacity', '0.0');
-		// 		if( obj.is("visible") || obj.is("appearing") ){
-		// 		obj.emit("fadeOut");
-		// 		}
-	 //        }
-
-	 //        else {
-		// 		//obj.setAttribute('material','opacity', '1.0');
-		// 		if( obj.is("invisible") || obj.is("disappearing") ){
-		// 		obj.emit("fadeIn");
-		// 		}
-	 //        }
-	        
-		// }
 
 		</script>
 
@@ -67,27 +184,19 @@
 
 	<body>
 
-		<!-- <script src="js/jquery-3.1.1.min.js"></script>
-		<script src="js/three.js"></script> -->
+		<a-scene fog="type: linear; color: #FFFFFF; far: 20; near: 10">
 
-		<a-scene>
-
-			<!-- <a-assets>
-
-				<img id="ground" src="ground.jpg">
-
-			</a-assets> -->
-
-			<!-- Basic plane. -->
-			<a-plane color="#ff0000" height="20" width="20" rotation="-90 0 0"></a-plane>
+			<a-plane color="#ff0000" height="19.5" width="19.5" rotation="-90 0 0"></a-plane>
 			<a-plane color="#ffffff" height="19" width="19" rotation="-90 0 0" position="0 .01 0"></a-plane>
 
-			<a-entity meshline="lineWidth: .2; path: 10 0 100, 10 0 -100; color: #00ffff"></a-entity>
+			<!-- <a-box id="linebox" color="#00FF00" depth:"100" height=".5" width=".5" position="0 1 0"></a-box> -->
 
-			<a-box color="#00ffff" depth="2" height="1" width="1" position="4.5 .5 -9.5"></a-box>
+			<!-- <a-entity meshline="lineWidth: .2; path: 10 0 100, 10 0 -100; color: #00ffff"></a-entity> -->
+			<a-entity floor-lines></a-entity>
 
-			<!-- Textured plane parallel to ground. -->
-			<!-- <a-plane src="#ground" height="100" width="100" rotation="-90 0 0"></a-plane> -->
+			<a-entity block-creator position="0 0 0"></a-entity>
+
+			<a-camera></a-camera>
 		
 			<!-- <a-entity position = "0 0 40">
 				<a-camera></a-camera>
