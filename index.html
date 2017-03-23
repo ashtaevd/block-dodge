@@ -32,51 +32,7 @@
 
 			}
 
-		 	//returns distance between two objects
-			function calculateDistance(one, two){
-
-				return Math.sqrt(
-					+ Math.pow(one.x-two.x, 2)
-					+ Math.pow(one.y-two.y, 2)
-					+ Math.pow(one.z-two.z, 2) );
-
-			}
-
-		    function touchLocator(obj, camera){
-		        var objPos = obj.getAttribute("position");
-		        var camPos = camera.getAttribute("position");
-		        if( calculateDistance(objPos, camPos) <= 1.5) {
-		        	console.log("Near bloccck.");
-		        }
-		    }
-
-		  // 	AFRAME.registerComponent('floor-lines', {
-
-				// schema: {
-
-				// 	lineWidth: {type:'number', default: .2},
-				// 	color: {type:'color', default: '#00FFFF'},
-
-				// },
-
-				// init: function (meshline) {
-
-				// 	// var entity = document.createElement('a-entity');
-				// 	// entity.setAttribute('meshline', true);
-
-				// 	var self = this;
-
-		  //     		var entity = document.createElement('a-entity');
-    //       			entity.setAttribute('meshline', true);
-
-    //       			self.el.appendChild(entity);
-
-			 //  		for (var i = -10; i <= 10; i++) {}
-
-		  // 		}
-		  		
-		  // 	});
-
+			// var hitColor
 
 		    // ~ ~ ~ block style and behavior ~ ~ ~
 		    AFRAME.registerComponent('flying-block', {
@@ -95,7 +51,25 @@
          			randomPosition = Math.floor((Math.random() * 20) - 10);
          			this.el.setAttribute('position', { x: randomPosition, y: .5, z: -30 });
 
-         			// console.log(this)
+
+					var hitColor = createAnimation("collisionAnim");
+					hitColor.setAttribute("attribute", "material.color");
+					// hitColor.setAttribute("begin", "collisionAnim");
+					hitColor.setAttribute("from", "#00ffff");
+					hitColor.setAttribute("to", "#ff0000");
+					hitColor.setAttribute("dur", "500");
+					hitColor.setAttribute("repeat","2");
+
+					this.el.appendChild(hitColor);
+
+					// var hitScale = createAnimation("collisionAnim2");
+					// hitScale.setAttribute("attribute", "scale");
+					// hitScale.setAttribute("to", "2, 2, 2");
+					// hitScale.setAttribute("dur", "500");
+
+					// this.el.appendChild(hitScale);
+
+					levelOneBlocks.push(this.el);
 					
 				},
 
@@ -107,16 +81,12 @@
 
 					var position = this.el.getAttribute('position');
 					var rotation = this.el.getAttribute('rotation');
-					
-					// this.el.setAttribute('rotation', { x: rotation.x + (.01 * timeDelta), y: rotation.y, z: rotation.z });
 
 					this.el.setAttribute('position', { x: position.x , y: position.y, z: position.z + (.006 * timeDelta) });
 
 					if (position.z > 30) {
 						this.el.parentNode.removeChild(this.el);
 					}
-
-					levelOneBlocks.push(this.el)
 
 				}
 
@@ -137,11 +107,13 @@
 					var self = this;
           			setInterval(function() {
 
+          				//create new flying block with flying-block comonent
           				var entity = document.createElement('a-entity');
           				entity.setAttribute('flying-block', true);
+          				self.el.appendChild(entity);
 
-          				self.el.appendChild(entity)
-          				//create new flying block
+          				//push new block into the array
+          				levelOneBlocks.push(entity);
 
           			}, timeDifference)
 					
@@ -155,12 +127,12 @@
 				tick: function (time, timeDelta) {
 
 					timeDifference -= .1;
+					console.log(timeDifference)
 
 				}
 
 			});	
 
-		    // ~ ~ ~ mb have the objective as running from one side of the square to the other ~ ~ ~
 
 		    // ~ ~ ~ Limiting the player ~ ~ ~
 
@@ -178,6 +150,70 @@
 			//***How to limit camera position?***
 			// if ( camera.position.x <=-10 || camera.position.x >=10 || camera.position.z <=-10 || camera.position.z >=10 )
 
+
+			//returns distance between two objects
+			function calculateDistance(one, two){
+
+				return Math.sqrt(
+
+					+ Math.pow(one.x-two.x, 2)
+					+ Math.pow(one.y-two.y, 2)
+					+ Math.pow(one.z-two.z, 2) );
+
+			}
+
+		    function touchLocator(obj, camera){
+
+		        var objPos = obj.getAttribute("position");
+		        var camPos = camera.getAttribute("position");
+		        
+		        if( calculateDistance(objPos, camPos) <= 1.5) {
+
+		        	console.log("Near bloccck.");
+		        	obj.emit("collisionAnim", null, false);
+		        	// obj.emit("collisionAnim2", null, false);
+
+		        }
+
+		    }
+
+		    function borderLocator(camera){
+		        var camPos = camera.getAttribute("position");
+		        if( camPos.x >= 9.5 || camPos.x <= -9.5 || 
+		    		camPos.z >= 9.5 || camPos.z <= -9.5) {
+		        	console.log("Touched the border.");
+		        }
+		    }
+
+		    // function tracker () {
+		    	// console.log("Timer")
+				$("document").ready(function() {
+		        var scene = document.querySelector('a-scene');
+			        // when scene is loaded
+			        scene.addEventListener('loaded', function (evt) {
+						// if the camera position changes, recalculate distance between camera and objects
+						var camera = document.querySelector('a-camera');
+						camera.addEventListener('componentchanged', function (evt) {
+							if (evt.detail.name === "position") {
+								// ~ ~ ~ look through the block array ~ ~ ~
+								if(levelOneBlocks.length > 0) {
+									for(var i = 0; i < levelOneBlocks.length; i++){
+										touchLocator(levelOneBlocks[i], camera);
+									}
+								}
+
+								borderLocator(camera);
+
+							}
+						});
+					});
+		        });
+		    // }
+
+		    // setInterval (tracker(), 500);
+
+	        //while (player.position)
+
 		</script>
 
 	</head>
@@ -186,7 +222,7 @@
 
 		<a-scene fog="type: linear; color: #FFFFFF; far: 20; near: 10">
 
-			<a-plane color="#ff0000" height="19.5" width="19.5" rotation="-90 0 0"></a-plane>
+			<a-plane color="#ff0000" height="20" width="20" rotation="-90 0 0"></a-plane>
 			<a-plane color="#ffffff" height="19" width="19" rotation="-90 0 0" position="0 .01 0"></a-plane>
 
 			<!-- <a-box id="linebox" color="#00FF00" depth:"100" height=".5" width=".5" position="0 1 0"></a-box> -->
